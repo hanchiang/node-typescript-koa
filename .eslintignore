@@ -1,0 +1,6 @@
+node_modules/**
+coverage/
+dist/
+chart/
+.nyc_output/
+*.sql

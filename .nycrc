@@ -1,0 +1,4 @@
+{
+  "extends": "@istanbuljs/nyc-config-typescript",
+  "exclude": ["src/config/**", "src/app.ts", ".mocharc.js", "test/mock-data"]
+}

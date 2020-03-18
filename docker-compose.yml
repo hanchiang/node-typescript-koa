@@ -1,0 +1,48 @@
+version: "3"
+
+services:
+  my-service:
+    container_name: my-service
+    build:
+      context: .
+      dockerfile: Dockerfile-dev
+    image: my-service:dev
+    command: npm run dev
+    ports:
+      - 3000:8080
+    environment:
+      DB_HOST: mysql
+      DB_USER: root
+      DB_PASSWORD: root
+      DB_NAME: my-service
+    volumes:
+      # bind-mounting these two files in will let you add packages during development without rebuilding
+      # for example, to add bower to your app while developing, just install it inside the container
+      # and then nodemon will restart. Your changes will last until you "docker-compose down" and will
+      # be saved on host for next build
+      - ./:/opt/my-service
+      - ./package.json:/opt/my-service/package.json
+      - ./package-lock.json:/opt/my-service/package-lock.json
+      # this is a workaround to prevent host node_modules from accidently getting mounted in container
+      # in case you want to use node/npm both outside container for test/lint etc. and also inside container
+      # this will overwrite the default node_modules dir in container so it won't conflict with our
+      # /opt/my-service/node_modules location.
+      - /opt/my-service/node_modules
+    depends_on:
+      - mysql
+  
+  mysql:
+    container_name: mysql
+    image: mysql:5.7.26
+    command: --default-authentication-plugin=mysql_native_password --max-allowed-packet=524288000
+    ports:
+      - 3306:3306
+    environment:
+      MYSQL_DATABASE: my-service
+      MYSQL_USER: root
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+volumes:
+  mysql-data:
